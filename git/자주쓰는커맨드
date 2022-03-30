@@ -1,0 +1,16 @@
+・리모트 브런치 
+git checkout -b <branch> origin/<branch>
+
+・PR마지 후 삭제
+git branch -d <branch>
+
+・직전 커밋 취소 
+git reset --soft HEAD^
+
+.리베이스 작업중 브런치에서 실행
+git checkout master
+git pull
+git checkout <branch>
+git rebase origin/master
+경합 발생시 수정 후 git rebase --continue
+git push origin <branch>-f 
