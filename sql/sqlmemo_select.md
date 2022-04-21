@@ -75,9 +75,11 @@ TO_DATE함에를 문자열만 지정 NLS_DATE_FORMAT에 설정된 값으로 변�
 ```
  - NLS_DATE_FORMAT의 역활, 표시서식 & 변환시 서식지정
  - 설정 방법: ALTER SESSION SET NLS_DATE_FORMAT='날짜포멧'
- - 초기설정치:
+ - 초기설정치: (시간은 포함되지 않음)
    - NLS＿TERRITORY=AMERICA NLS_DATE_FORMAT=DD-MON-RR
    - NLS＿TERRITORY=JAPAN NLS_DATE_FORMAT=DD-MON-RR
+   - 「SHOW PARAMETER NLS_DATE_FORMAT」 으로 확인후 시간표시가 가능한 설정으로 변경
+   - ex) ALTER SESSION SET　NLS_DATE_FORMAT='YYYY/MM/DD HH24:MI:SS'
 날짜 포멧
  - YYYY, YY, RR 년
  - MM(01~12), MONTH 축약형:MON: NLS_LANGUAGE, NLS_DATA_LANGUAGE에 설정된 언어에 따른 값에 따라
@@ -86,4 +88,20 @@ TO_DATE함에를 문자열만 지정 NLS_DATE_FORMAT에 설정된 값으로 변�
  - MI, SS, FF 분 초 미리초 
  - AM 오전 오후 
  - TZR 타임존 
- 
+
+영어환경(NSL_LANGUAE(언어표시)='AMERICAN' NLS_TERRITORY(지역)='AMERICA')의 차이점 ※설정치는 대소문자를 구별 안함  
+ - 화면출력이나 메세지가 영어
+ - 날짜 데이터 취급
+
+TIMESTAMP: 미리초를 설정, NLS_TIMESTAMP_FORMAT으로 포멧 설정
+
+##### NULL
+ - 값이 비었거나, 불명인 상태, 가급적 사용하지 않는것이 좋다.
+ - 오라클에서는 공문자열「''」은 Null로 취급한다. (특유의 동작)
+ - NULL의 설정 방법
+   - 직접 Null을 설정, 설정 생략, ''을 설정 
+ - Null을 포함한 산술식은 항상 NULL을 반환한다. 
+ - 문자열과 Null연결은 문자열을 반환
+ - 검색시 IS NULL, IS NOT NULL 의 전용 Null조건을 사용한다. Null로 비교해도 검색이 안됨.
+ - Null에 대해여 NULL조건 이외의 Null검색시 항상 불명 처리되어 false로 간주된다. (검색불가)
+
