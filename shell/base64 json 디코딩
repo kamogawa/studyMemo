@@ -1,0 +1,16 @@
+#!/bin/bash
+TEST_NEW3_DEV=ew0KICAidGVzdDEiOiAidGVzdDFfdmFsIiwNCiAgInRlc3QyIjogInRlc3QyX3ZhbCIsDQogICJ0ZXN0MyI6ICJ0ZXN0M192YWwiDQp9
+TEST_OLD4_DEV=ew0KICAidGVzdDQiOiAidGVzdDRfdmFsIiwNCiAgInRlc3Q1IjogInRlc3Q1X3ZhbCIsDQogICJ0ZXN0NiI6ICJ0ZXN0Nl92YWwiDQp9
+
+TEST_NAMES=test_new3,test_old4
+TEST_ENV=dev
+
+for TEST_NAME in $(echo "$TEST_NAMES" | tr -s ',' ' ')
+do
+  tmp_file="${TEST_NAME}/${TEST_ENV}.json"
+  mkdir -p "${TEST_NAME}"
+  key_name=$(echo "${TEST_NAME}_${TEST_ENV}" | tr "[:lower:]" "[:upper:]")
+  if [ -n "$(eval echo "\$${key_name}")" ]; then
+    eval echo "\$${key_name}" | base64 -d | jq > "$tmp_file"
+  fi
+done
