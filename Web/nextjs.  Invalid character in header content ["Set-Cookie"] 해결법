@@ -1,0 +1,5 @@
+ Invalid character in header content ["Set-Cookie"]
+ nextjs의 레스폰스의 쿠키설정에서 위와 같은 에러가 발생.
+ 설정치중 Expires의 날짜 포멧을 쿠키가 원하는 날짜 포멧으로 변경해줄 필요가 있음.
+ 
+ https://merrily-code.tistory.com/162
