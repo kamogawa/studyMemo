@@ -29,8 +29,34 @@
   
   멀티테이블INSERT
     복수의 표에 저장 가능, 뷰나 리모트표에는 불가능
-    무조건INSERT: INSERT ALL
+    INSERT, INSERT ALL, INSERT FIRST
+    
+    무조건INSERT: INSERT (ALL)
       서브쿼리의 반환값이 모든 INTO구에 지정된 표에 저장
       서브쿼리의 반환하는 열이 지정된 표의 열과 같을 경우 VALUES생략가능
     
-    조건부INSERT:
+    조건부INSERT:　INSERT ALL(조건에 만족하는 모든 then)|FIRST(처음 조건에 만족하는 then에만 실행, 2번 들어가는 것은 없음)
+      INSERT ALL | FIRST
+        WHEN 조건1
+        THEN INTO <t1> VALUES (c1, c2)
+             INTO <t1> VALUES (c1, c2)
+        WHEN 조건2
+        THEN INTO <t1> VALUES (c1, c2)
+             INTO <t1> VALUES (c1, c2)
+        ELES INTO <t1> VALUES (c1, c2)
+             INTO <t1> VALUES (c1, c2)
+        SELECT c1, c2 FROM t1 WHERE c1=1
+      when구의 안쪽에 복수의 into를 설정 가능
+      when을 만족하는 값이 없을 경우 else가 실행 else는 지정안해도 됨
+      
+    MERGE문에 의한 행 갱신과 추가
+      소스표의 행을 타겟표에 통합하는 동작
+      MERGE INTO t1
+        USING t2
+        ON (t1.c1 = t2.c1)
+        WHEN MATCHED THEN 
+          UPDATE SET t1.c3 = "xx"
+        WHEN NOT MATCHED THEN
+          INSERT (t1.c1, t1.c2) VALUES (t2.c1, t2.c2); 
+          
+      USING구에 표대신 뷰나 서브쿼리 지정가능
