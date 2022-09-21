@@ -86,4 +86,52 @@
       외부키제약이 의존하고 있는 주키제약, 유니크제약을 무효화 하는 경우, CASECADE를 지정할 필요가 있음, 외부키 제약도 함께 무효화됨, 
       하지만 무효화 해지시 1개씩 유효화를 실행해 줘야함
       
+4. ALTER TABLE
+  테이블 정의 변화 할수 있다.
+  열추가: ALTER TABLE t1 ADD (col1 number [DEFALT 1] [제약] [, 열정의2]);
+    열정의에는 (열명, 데이터형, 데폴트, 제약 등);이 지정가능 하다.
+    추가한 열의 순서는 가장 끝이 됨 
+    데폴트 값을 설정 안한경우, 이미 격납된 열에는 null이 설정됨
+    추가열에 not null제약을 설정한 경우 데폴트값을 설정할 필요가 있음
+    
+  열변경: ALTER TABLE t1 MODIFY (col1 [number] [DEFALT 1] [null | not null] [, 열정의2]);
+    데이터 형, 데폴트 값, not null제약 등의 추가 삭제가 가능
+    열변경시 제한사항: 
+      표에 행데이터가 있는 상태에서 데이터를 변경하는 경우, 원칙적으로 변경대상의 열의 모든행이 null일 필요가 있음(이하 예외 있음)
+        DATE형을 TIMESTAMP또는 TIMESTAMP WITH LOCAL TIME ZONE으로 변경
+        TIMESTAMP형 또는 TIMESTAMP WITH LOCAL TIME ZONE형을 DATE형으로 변경
+     표에 행데이터가 있는 상태로 열의 데이터형의 데이터 사이즈를 변경할 경우 데이터사이즈를 크게 변경하는 것만 가능함
+     
+  열삭제: ALTER TABLE t1 DROUP COLUMN [ CASCADE CONSTRAINS ];
+    (복수열): ALTER TABLE t1 DROUP ( col1, col2 ) [ CASCADE CONSTRAINS ];
+    외부키 제약에 의해 참조된 열을 삭제할 경우,   [ CASCADE CONSTRAINS ]를 지정할 필요가 있음
+    삭제된 열은 원상태로 되돌릴수 없음, 모든열을 삭제할수 없음 표에 1개의 열은 존재해야함
+    데이터양이 많으면 속도가 느림, 열을 미사용으로 전환하여 삭제하면 회피 가능
+    
+  열의 미사용화: ALTER TABLE t1 SET UNUSED COLUMN 열명 [ CASCADE CONSTRAINS ] [ONLINE];
+    (복수열)ALTER TABLE t1 SET UNUSED (col1, col2) [ CASCADE CONSTRAINS ];
+    스토리지 영역을 개방: ALTER TABLE t1 DROP UNUSED COLUMS;
+    SET UNUSED를 사용하여 기존의 열을 미사용화 하여 DROP구에 의한 삭제시 처리속도 향상
+    외부키 제약에 의해 참조 되고있는 열을 미사용화 할 경우 [ CASCADE CONSTRAINS ] 을 지정장 필요가 있음
+    [ONLINE]을 지정하면 열을 미사용화 하는 동안에도 dml을 실행가능   
+    사용시 주의사항
+      미사용 열의 값에는 악세스 불가능, 
+      미사용화 한 열명 밑 형은 DESCRIBE 커맨드로는 표시 되지 않는다.
+      미사용화 한 열을 되돌리는 것은 불가능함
+      미사용화 한 열명과 같은 열명을 추가 가능함
+      
+  읽기전용 모드: ALTER TABLE t1 READ ONLY;
+  (읽고 쓰기로 되돌경우)ALTER TABLE t1 READ WRITE;
+    dml에 의한 변경, TRUNCATE TABLE에 의한 삭제 select for update 가 사용불가능 함
+  
+  표의 이동: ALTER TABLE t1 MOVE TABLESPACE <표영역명>;
+    표의 이동중에 dml이 실행될 경우 완료 될때까지 대기됨
+    표에 설정되 색인은 UNUSABLE 로 되버리기 때문에 재구축 할 필요가 있음
+    
+  표명 변경: ALTER TABLE t1 RENAME TO t2;
+    변경전 표에 대한 조작을 허가하는 오브젝트권한이 있는 경우 변경된 표에도 이어짐
+    
+5. 표의 삭제와 버림
+  표삭제: DROP TABLE t1 [ CASCADE CONSTRAINS ] [PURGE];
+  
       
