@@ -1,0 +1,52 @@
+1. 뷰: 가상표(실제 데이터가 없음으로 세그먼트가 없음)
+  스키마 오브젝트 특정유저의 소유, 복수의 스키마로부터 결합가능하나 권한 필요
+  select문에 이름을 지어 저장한것, 복잡한 질의를 은폐하고 접근성 향상
+  view에 정의된 select문이 실행되어 대상표에서 값을 취득함
+  
+  뷰에 의한 데이터 보호
+    오라클은 오브젝트권한에 의해 실행 가능한 조작이 한정되어 있음 
+    실제표에 대한 참조권한을 부여하지 않고 뷰에대한 권한만 부여함으로서 접근 가능한 데이터를 뷰로 범위를 한정할수 있음
+    
+2. 뷰의 관리
+  뷰의 작성: CREATE [OR REPLACE] [ [NO] FORCE ] VIEW v1
+          AS select * from t1 [WITH READ ONLY] [WITH CHECK OPTION];
+  
+  OR REPLACE: 같은이름의 뷰가 있을경우 덮어쓰기
+  FORCE: SELECT문에 참조하는 오브젝트가 없거나 권한이 없을 경우 강제작성
+  NO FORCE: SELECT문에 참조하는 오브젝트가 없거나 권한이 없을 경우 에러 (데폴트)
+  WITH READ ONLY: 읽기전용 없을 경우 DML 실행가능
+  WITH CHECK OPTION: DML실행시 변경내용을 체크함
+  
+  뷰의 참조
+    뷰에대해 where구 지정가능, 설정해둔 sql에 and조건으로 검색 됨
+    뷰를 사용함으로서 sql처리의 고속화는 되지 않는다. 고속화와는 관계 없는 기술
+  
+  뷰의 삭제: DROP VIEW v1;
+  
+  뷰의 제작성
+    OR REPLACE구를 사용해여 select문을 쉽게 변경할수 있고, 유저에게 부여한 권한이나 롤을 유지된다.(뷰에 대한 오브젝트 권한은 변경되지 않기 때문)
+    INSTED OF 트리거는 삭제됨
+    ALTER VIEW 로는 select문을 변경 못함, 재컴파일, 제약 변경등에 사용
+    DROP -> CREATE VIEW 로 하면 권한설정을 재실행해야함
+    
+ 3. 뷰의 dml
+  WITH READ ONLY를 지정하지 않으면 dml실행 가능
+  실제표에 제약이 지정되어 있는 경우, 제약위반시 실행불가
+  WITH CHECK OPTION을 지정하면, 갱신 후의 데이터가 뷰에 정의된 select문에 where조건을 만족하고 있는지 체크를 함, 충족 못할시 에러
+  뷰의 정의된 sql이 복잡할 경우 dml을 실행 못할수도 있음
+    결함연산자, DISTINCT 연산자, 집계함수, GROUP BY구, ORDER BY구 가 포함된 경우 실행 못함
+    
+  위의 경우 INSTED OF 트리거에 의해 dml을 실행 가능하게 할수 있다.
+  뷰에 dml이 실행되었을때 대신 실행되는 처리를 정의한 트리거
+    아래의 트리거 작성후 뷰에대해 delete를 실행시 실제표에 delete가 가능해짐, update, insert를 할경우 새로운 트리거를 작성해야함
+    :OLD.col1에 값이 치환됨
+    CREATE OR REPLACE TRIGGER t3
+    INSTEAD OF DELETE v1
+    BEGIN
+      DELETE t1 WHERE col1 = :OLD.col1;
+    END;
+    
+ 
+    
+    
+    
