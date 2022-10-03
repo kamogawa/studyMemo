@@ -26,11 +26,18 @@
     
 3. 권한 
   시스템권한: 데이터베이스 자체에 대해서 조작을 허용 할지 말지  
+  
   오브젝트권한: 다른 유저가 소유한 특정 오브젝트에 대해 조작을 허용할지 말지
             자신의 오브젝트 이외에는 조작에 대한 권한이 필요함
+            예)
+            표, 뷰: select read update delete insert references [alter, index]
+            시퀀스: select
+            디렉토리: read write
+            스토어프로시져: excute
+            
             
 4. 권한의 부여/취소
-  1. 권한을 부여: ,로 구분하여 복수의 권한 설정 가능, 시스템권한 오브젝트권한을 동시에는 불가능
+  1. 권한을 부여: ,로 구분하여 복수의 권한 설정 가능, 시스템권한 오브젝트권한을 동시에 설정 불가능
     시스템: GRANT CREATE ANY INDEX, CREATE TABLE TO user1, user2 [WITH ADMIN OPTION];
     오브젝트: GRANT UPDATE, ALTER (c1) ON user2.table1, user2.table2 TO user1;
       (열명) 으로 열단위 지정 가능
@@ -38,17 +45,19 @@
   2. 권한 취소: ,로 구분하여 복수 설정 가능
     시스템: REVOKE CREATE ANT DIRECTORY FROM user1;
     오브젝트 REVOKE UPDATE, ALTER (c1) ON user2.table1 FROM user1;
-      (열명) 으로 열단위 지정 가능
+      (열명) 으로 열단위 지정 가능, update insert references 만 가능
       
   시스템 권한 부여조건: 시스템권한 부여 취소는 admin옵션을 지정하여 시스템권한이 부여되어 있던지, GRANT ANY PRIVILEGE 시스템 권한이 필요
-    WITH ADMIN OPTION 옵션: 권한과 함께 옵션이 부여받은 유저는 다른 유저에게 부여받은 권한이 부여가능함
+    WITH ADMIN OPTION 옵션: 권한과 함께 옵션이 부여받은 유저는 다른 유저에게 부여받은 권한이 부여,취소가능함
                            ADMIN 옵션을 지정하여 권한을 부여받은 유저는 다른 유저로부터 그 권한을 취소 가능하다.
                            ADMIN 옵션을 부여받은 유저가 권한이 취소되었을 경우 다른 유저에 영향은 없음
+                           ADMIN 옵션을 부여받은 유저는 다른 유저에게도 ADMIN 옵션을 부여할수 있다.
+                           ADMIN 옵션이 부여된 권한 삭제시 특별한 옵션 지정은 없음
     GRANT ANY PRIVILEGE 시스템 권한: 모든 시스템 권한을 다른 유저에게 부여가능함
                                   sys, system 유저에게 부여되어 있음, 모든 유저에대해 권한부여 취소가 가능함   
 
   오브젝트 권한을 부여 조건: 소유유저가 소유한 오브젝트에 대해 권한을 부여, 소유자 이외에는 GRANT, GRANT ANY OBJECT PRIVILEGE 시스템 권한이 필요
-    WITH GRANT OPTION: 옵션이 함께 부여 받은 유저는 다른 유저에게 권한 부여가 가능함
+    WITH GRANT OPTION: 옵션이 함께 부여 받은 유저는 다른 유저에게 권한 부여,취소가 가능함
                        grant옵션을 지정하여 오브젝트 권한을 부여 가능한것은, 유저와 public롤만 가능, 보통 롤에는 불가능
                        grant옵션을 부여받은 유저가 권한이 취소될경우, 삭제된 유저가 권한을 부여한 유저에게 연쇠적으로 취소됨
     GRANT ANY OBJECT PRIVILEGE 시스템 권한: 모든 오브젝트권한을 다른 유저에게 부여가능 
@@ -70,6 +79,7 @@
   롤작성: CREATE ROLL roll1;
   롤 삭제: DROP ROLL roll1;
   
+  public롤에만 with grant option을 붙여서 권한 부여가 가능하다. 일반롤에는 부여 불가능.
   롤에 권한 부여: GRANT SELECT ANY TABLE TO role1;
   롤에 권한 취소: REVOKE SELECT ANY TABLE FROM role1;
 
