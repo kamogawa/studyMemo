@@ -1,0 +1,26 @@
+1. 데이터딕셔너리: 오라클 내부의 관리정보를 격납한 특수한 표
+               sys유저(sys스키마)가 소유하고 있으며, system표영역에 격납되는 표
+               데이터베이스가 open(nomount, mount 상태)되지 않으면 데이터딕셔너리&뷰에 접근 불가
+               표 등의 오브젝트 정의정보나 유저의 암호화된 비밀번호, 유저, 롤, 권한, 표영역, 데이터 파일에 대한 정보가 격납됨
+               관리정보의 멘테넌스는 오라클에서 자동적으로 이루어짐, 정합성에 영향있음으로 직접 수정해서는 안된다
+               
+2. 데이터딕셔너리 뷰: 데이터딕셔너리의 관리정보를 보기 편한 형식으로 변환한 select문, 소유자는 sys유저
+  SELECT * FROM DICTIONARY; 로 데이터딕셔너리 뷰의 일람을 확인 가능
+  대표적인 예)
+    표정보: [DBA_, ALL_, USER_] TABLES 
+    색인정보: [DBA_, ALL_, USER_] INDEXES
+    뷰정보: [DBA_, ALL_, USER_] VIEWS
+    시퀀스정보: [DBA_, ALL_, USER_] SEQUENCES
+    시노님정보: [DBA_, ALL_, USER_] SYNONYMS
+    제약정보: [DBA_, ALL_, USER_] CONSTRAINTS
+    유저정보: [DBA_, ALL_, USER_] USERS
+    표영역: [DBA_, USER_] TABLESPACES
+    데이터 파일의 빈영역: [DBA_, USER_] FREE_SPACE
+    데이터 파일의 빈영역: DBA_DATA_FILES
+    
+3. 데이터딕셔너리뷰의 분류
+ DBA_ : 데이터베이스 전체의 관리정보가 표시됨, 권한을 갖는 유저만 접근 가능, DBA_ 대해 접근 권한 있음
+ ALL_ : 질의한 유저가 접근가능한 범위의 관리정보가 표시됨, 유저별로 다른 결과 출력, 자신의 소유 + 접근 권한이 있는 정보, ALL_ 대해 접근 권한은 없음
+ USER_ : 질의한 유저가 소유한 범위의 관리정보가 표시됨, 유저별로 다른 결과 출력, USER_ 대해 접근 권한은 없음
+ DICTIONARY 등 뷰도 있있음
+ 
