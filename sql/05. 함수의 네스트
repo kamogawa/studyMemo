@@ -1,0 +1,51 @@
+1. 함수의 네스트
+  - 함수의 파라메터에 함수를 설정할수 있다. 
+  - 네스트 구조: 안쪽부터 실행 됨, 네스트 제한 수는 없다.
+
+2. 데어터 형변환
+ - 데이터 형의 변환 (2가지)
+   - 명시적 형변환: 형변환시 함수(변환함수) 사용(의도하지 않는 타입이 설정되는 것을 막기 때문에 추천)
+     - TO_DATE(문자열, 포멧, nsl_date_laguage=amarica): 문자형 -> 날짜형
+       - select to_date('140121', 'DDMMRR') from dual;
+     - TO_NUMBER: 문자형 -> 숫자형
+       - 설정 포멧은 TO_CHAR와 같음
+       - select to_number('$19,456', '$99G999') from dual;
+     - TO_CHAR: 수자형, 날짜형 -> 문자형
+       - TO_CHAR(날짜, [포멧], [NLS_DATE_LANGUAGE=언어]): 포멧에 따라서 
+         - SELECT TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS') FROM dual
+       - TO_CHAR(숫자, [포멧])
+         - 9: 9의 숫자가 유효한 자릿수
+         - 0: 자릿수가 충족되지 않을 경우 0이 설정
+         - $: $를 접두어로 설정
+         - L: 지역통화기호를 접두어로 설정
+         - C: iSO통화기호로 접투어 설정
+         - D, . : 지정한 위치에 소수점
+         - G, , : 지정한 위치에 컴마
+         설정범위를 넘어가면 #####로 표시, 소수점은 반올림
+   - 암묵적 형변환: 서로 다른 형을 비교나 대입시 오라클에서 자동적으로 형변환 실시
+     - 의도하지 않은 동작이 일어날 위험이 있음.
+     - 향후 사양이 변경될 가능성이 있음
+     - 퍼포먼스가 좋지 않음
+     - 문자열 -> 숫자: 변환 불가한 문자열일 경우 에러가 발생
+     - 문자열 -> 날짜: nls_date_format 설정대로 변환, 파라메터와 포멧이 다르면 에러
+     - 함수의 네스트의 경우 변환하는 곳에서 데이터 타입의 판단에 실패하는 경우 형변환에 실패한다.
+       - select round('2022/01/01 10:10:10') from dual;
+       - round에는 숫자, 날짜형 데이터가 설정되지만 오라클에서 자동적으로 판단을 못하기 때문에 에러가 발생
+       - 날짜 암묵적 형변환시 rr은 yyyy에 대응함, mon month에 대응함
+
+3. Null 관련 함수 
+  - NVL(val, replace)
+    - val이 null일경우 replace로 변환, null이 아닐경우 그대로 설정
+    - val과 replace가 데이터타입이 다를경우 replace를 val의 타입으로 암묵적 형변환을 한다(형변환 실패시 에러)
+  - NVL2(val, out1, out2)
+    - val이 null이 아닐경우 out1을 리턴, null일경우 out2를 리턴
+    - out1과 out2가 타임이 다를 경우 out2를 out1의 타입으로 암묵적 형변화을 한다(형변환 실패시 에러)
+  - NVLIF(val, check)
+    - val이 check와 일치할경우 null을 설정, check와 일치하지 않으면 val을 설정
+    - val에 null을 지정할수 없다.
+    - val과 check는 반드시 형이 일치해야 한다.
+    - select col1, nullif(job, old_job) from table1;
+  - coalesce(val1, val2, ... valN) 
+    - 설정치에서 최초로 null이 아닌 값을 반환
+    - 전부 null일경우 null을 반환
+    - 타입은 전부 일치해야한다.
