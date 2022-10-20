@@ -17,15 +17,21 @@
     in: 또는
     any: in 과 비슷 복수행 값이 앞의 연산자에 충적되면 참
     all: 복수행 값이 모두 충족되야 참 
-      SELECT col1, col2 FROM table WHERE col3 > All<ANT> (서브쿼리)
+      SELECT col1, col2 FROM table WHERE col3 > All|ANY (select max(col1) from table2);
   단일행 복수열: 그다지 사용되지 않음
     검색조건의 좌우변의 타입과 열수가 일치해야한다.
+      select col1 from t1 where (col1, col2) = (select col1, col2 from t2 where col1>10);
     
 4. 상관서브쿼리
   상관서브쿼리: 메인쿼리를 참조하는 서브쿼리
     상관서브쿼리는 메인과 관련지어져 있기 때문에 단독으로 실행못함   
-  자기상관서브쿼리: 메인쿼리 서브쿼리가 같은 표를 참조하는 서브쿼리
+    보통 서브쿼리는 1번만 실행 되지만, 상관서브쿼리는 주쿼리에서 참조하고 있는 표의 행수 만큼 실행 된다.
+  자기상관서브쿼리: 메인쿼리 서브쿼리가 같은 표를 참조하는 서브쿼리, 표별명으로 구분
+  
   EXISTS조건: 서브쿼리가 1행이상 반환하고 있는지 테스트 하는 조건, 좌변이 없음, NOT　EXISTS도 사용가능
-  상관서브쿼리로는 행의 갱신 및 삭제에서도 사용가능 함. 10장 참조    
+    select col1, col2 from t1 WHERE EXIST (select * from t2 where t1.col1 = t2.col2);
+  상관서브쿼리로는 행의 갱신 및 삭제에서도 사용가능 함. 10장 참조  
+    update t1 set col1= (select new_v from t2 where t1.col1 = t2.col1);
+    delete t1 where EXIST (select 'x' from t2 where t1.col1 = t2.col1);
   
     
