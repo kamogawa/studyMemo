@@ -13,12 +13,17 @@
       select col1, col2 from t1
       union 
       select col3, null('리터럴') from t2
+      null지정시 그냥 null 지정해도 문제없지만, 형변환 함수로 null을 지정할 경우 타입에 맞게 변환함수를 사용해서 null을 지정해야 함
+        to_date(null), to_number(null), to_char(null) 
+
     데이터형: 결합연산에서는 암묵적 형변환이 안되기 때문에 명시적 형변환으로 에러 회피가능
             단 데이터 형이 문자열인 char와 varchar는 사용가능
             select col1, col2 from t1
             union 
             select col3, to_number(col4) from t2
-            
+     
+     
+
   열명과 열사이즈는 달라도 됨
   ORDER BY 는 마지막에 지정
     맨앞의 질의에 열명(열별명, 위치번호)으로 정렬 
