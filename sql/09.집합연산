@@ -2,14 +2,23 @@
   집합연산: 복합쿼리 라고도함
   UNION (ALL): 합집합(중복포함) 
   INTERSECT: 교집합 적집합
-  MINUS: 차집합
+  MINUS: 차집합 (의 경우 쿼리의 순서에 따라서 출력값이 달라진다)
+    select col1, col2 from t1
+    UNION ALL
+    select col3, col4 from t2
 
 2. 주의 사항
   각 SELECT리스트의 수와 데이터 형이 같아야함
     열수: 더미 데이터를 사용해서 지정하면 에러 회피가능
-    데이터형: 암묵적 형변환이 안되기 때문에 명시적 형변환으로 에러 회피가능
+      select col1, col2 from t1
+      union 
+      select col3, null('리터럴') from t2
+    데이터형: 결합연산에서는 암묵적 형변환이 안되기 때문에 명시적 형변환으로 에러 회피가능
             단 데이터 형이 문자열인 char와 varchar는 사용가능
-            null도 형변환 해야함 to_date(null), to_number(null), to_char(null)
+            select col1, col2 from t1
+            union 
+            select col3, to_number(col4) from t2
+            
   열명과 열사이즈는 달라도 됨
   ORDER BY 는 마지막에 지정
     맨앞의 질의에 열명(열별명, 위치번호)으로 정렬 
