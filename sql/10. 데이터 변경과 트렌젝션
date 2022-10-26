@@ -1,61 +1,127 @@
 1. DML
-  INSERT: INSERT <표명> (<열명1>, <열명2>, ...) VALUES (<값1＞, <값2>, ...);
+  INSERT: INSERT INTO <표명> (<열명1>, <열명2>, ...) VALUES (<값1＞, <값2>, ...);
+    INSERT INTO t1 (col1, col2) values('a', 12);
+
     열명을 지정하지 않은 열에는 null 또는 디폴트값이 저장됨.
-    열수가 일치하지 않으면 에러
+    열수와 값의 수가 일치하지 않으면 에러
     암묵적 형변환이 안되는 값이 설정되면 에러
-    NOT NULL 제약이 설정된 열에 null, 설정시 에러
+    NOT NULL 제약이 설정된 열에 null 설정시 에러
     주키 제약에 설정된 열에 중복값 설정시 에러
     열명을 지정하지 않은 경우 모든 열의 값을 지정해야함.
-  
+      INSERT INTO t1 values('a', 12);
+
   UPDATE: UPDATE <표명> SET <열명1> = <값1>, <열명2> = <값2> [WHERE 조건식]
+    UPDATE t1 SET col2=15 where col1='a';
     WHERE구를 생략시 모든 행을 갱신
     SET구의 값(우변)에는 계산식이 지정가능 컴마 구분으로 복수지정 가능
-   
+       UPDATE t1 SET col2=col2+10, col='b' where col1='a';
+
   DELETE: DELETE [FROM] <표명> [WHERE 조건식]
+    DELETE [FROM] t1 WHERE col1='a';
     FROM은 생략가능
     WHERE구를 생략시 모든 행을 삭제
     
   DML사용시 서브쿼리가 설정 가능.
     스칼라 서브쿼리 (단일열 단일행)
       VALUES, SET, WHERE 에 설정 가능
+      INSERT INTO t1 (col1, col2) values('a', (select col3 from t2 where col4='v'));
+      UPDATE t1 SET col2=(select col3 from t2 where col4='v') where col1='a';
+      DELETE [FROM] t1 WHERE col1 > (select col3 from t2 where col4='v');
+      
     단일행 복수열
       UPDATE: SET구의 좌변과 우변의 열수와 데이터 형이 같아야 함
               서브쿼리가 null일 경우 null로 갱신됨
+              UPDATE t1 SET (col1, col2)=(select col3, col4 from t2 where col4='v') where col1='a';
+              
     복수행 복수열
       INSERT: 열명을 지정한 경우 열수와 타입이 서브쿼리의 반환값과 일치해야 함
+              INSERT INTO t1 (col1, col2) select col4, col3 from t2 where col4<=100;
               열명을 지정 안한경우 표의 열수와 타입이 일치해야함
-    상관서브쿼리(메인 쿼리를 참조하는 서브쿼리)
-      UPDATE, DELETE　복수행 갱신 가능
+              INSERT INTO t1 select col4, col3 from t2 where col4<=100;
+      상관서브쿼리(메인 쿼리를 참조하는 서브쿼리)
+        상관서브쿼리가 대응하는 열이 없을 때는 null이 설정 됨 
+        UPDATE, DELETE　복수행 갱신 가능
+          UPDATE t1 SET col1 = (select col3 from t2 where t1.col2 = t2.col4);
   
   멀티테이블INSERT
-    서브쿼리에서 반환한 복수의 열을 동시에 복수의 표에 저장 가능, 표만 가능 뷰나 리모트표에는 불가능
+    서브쿼리에서 반환한 복수의 열을 동시에 복수의 표에 저장 가능
+    표만 저장 가능 뷰나 리모트표에는 불가능
     
     무조건INSERT: INSERT (ALL)
+      INSERT ALL 
+        INTO t1 values (col1, col2)
+        INTO t2 values (col3, col4)
+        SELECT col1, col2, col3, col4 form t0;
       서브쿼리의 반환값이 모든 INTO구에 지정된 표에 저장
       서브쿼리의 반환하는 열이 지정된 표의 열과 같을 경우 VALUES생략가능
     
-    조건부INSERT:　INSERT ALL(조건에 만족하는 모든 then)|FIRST(처음 조건에 만족하는 then에만 실행, 2번 들어가는 것은 없음)
+    조건부INSERT:　
+     　INSERT ALL(조건에 만족하는 모든 then 2번 설정 가능)
+     　FIRST(처음 조건에 만족하는 then에만 실행, 2번 들어가는 것은 없음)
       INSERT ALL | FIRST
-        WHEN 조건1
-        THEN INTO <t1> VALUES (c1, c2)
+        WHEN 조건1 THEN 
              INTO <t1> VALUES (c1, c2)
-        WHEN 조건2
-        THEN INTO <t1> VALUES (c1, c2)
+             INTO <t1> VALUES (c1, c2)
+        WHEN 조건2 THEN 
+             INTO <t1> VALUES (c1, c2)
              INTO <t1> VALUES (c1, c2)
         ELES INTO <t1> VALUES (c1, c2)
              INTO <t1> VALUES (c1, c2)
         SELECT c1, c2 FROM t1 WHERE c1=1
+      서브쿼리의 리턴값이 when의 조건을 만족할 경우 내부의 into가 실행 
       when구의 안쪽에 복수의 into를 설정 가능
       when을 만족하는 값이 없을 경우 else가 실행 else는 지정안해도 됨
       
     MERGE문에 의한 행 갱신과 추가
-      소스표의 행을 타겟표에 통합하는 동작
+      소스표의 행을 취득하여 타겟표에 행을 추가 또는 갱신
       MERGE INTO t1
         USING t2
         ON (t1.c1 = t2.c1)
-        WHEN MATCHED THEN 
+        WHEN MATCHED THEN  //생략가능
           UPDATE SET t1.c3 = "xx"
-        WHEN NOT MATCHED THEN
+        WHEN NOT MATCHED THEN //생략가능
           INSERT (t1.c1, t1.c2) VALUES (t2.c1, t2.c2); 
           
-      USING구에 표대신 뷰나 서브쿼리 지정가능
+      USING구에 소스표대신 뷰나 서브쿼리 지정가능
+      ON구에 타겟표와 소스표를 관련짓기 위한 조건을 지정함
+      on구에 지정한 열은 when match에 update에 지정할수 없다.
+      
+2. 트렌젝션: 정합성을 유지하기 위한 기능    
+  데이터 변경 처리(dml)를 실행 하면, 변경처리는 트렌젝션으로서 실행 됨
+  에러 발생시 정합성 유지 뿐만이 아닌, os나 오라클의 이상정지시 데이터베이스 정합성의 복구(인스턴스 리커버리),
+  데이터베이스 구성파일의 파손시 복구(미디어 디커버리)
+  
+  ALL or NOTHING 특성: 전부 성공하거나, 아무것도 실행되지 않거나 
+    일련의 변경처리를 1개의 묵음으로 취급하여, 변경이 도중에 어중간한 상태가 되지 않도록 하는 기능
+    에러가 발생할 경우 일련의 sql을 실행전으로 되돌리는 것을 보증한다.
+    
+  트렌젝션 덕분에 실패시 대처가 간단해짐, 재실행 하면 됨
+  
+  트렌섹션의 ACID 특성
+    원자성(Atomicity): 트렌젝션이 실패하더라도 전부 성공하거나, 아무것도 실행되지 않거나 하는 특성
+    일관성(Consistenct): 트렌젝션 실행전에 정합성이 유지되고 있으면 트렌젝션 실행 후에도 정합성이 유지 되고 있음
+                       데이터베이스 뿐만이 아니라 어플리케이션도 올바르게 작성될 필요가 있음
+    격리성隔離(isolation): 동시에 실행된 트렌젝션은 서로 간섭하지 않고 격리된 상태
+                        오라클은 読み取り일관성 로직에 의한 동시변경 방지 로 격리성을 실현함
+    지속성, 영속성, 내구성 (Durability): 커밋된 트렌젝션이 보존되어 간단히 잃어버리지 않는 특성
+                                    오라클은 인스턴스 리커버리 기능이나 미디어 리커버리 기능에 의해 트렌젝션의 지속성을 실현하고 있음
+
+  트렌젝션의 사용
+    트렌젝션은 dml이 실행되면 자동적으로 개시되고, commit이 실행되면 종료되어 변경이 확정됨
+    확정된 변경처리는 원칙적으로 복구가 불가능 하다.
+    복수의 dml을 실행할 경우 커밋을 실행하기 전까지 1개의 트렌젝션으로 취급된다.
+    
+  트렌젝션의 취소
+    변경이 확정된 후에는 취소 불가, 확정되기 전에는 rollback을 사용하여 취소가 가능하다.
+    
+  트렌젝션의 개시 종료
+   개시: dml 실행, select for update실행, set transaction으로 명시적으로 개시
+   종료(확정): commit, 정상접속종료, ddl
+   종료(취소): rollback, 접속이상종료(오라클 장애, 셧다운 등)
+             이상 발생시 트렌젝션 실행전으로 돌아가 정합성은 유지된다. 
+             
+  savepoint <세이브포인트명>
+    트렌젝션 실행중 도중의 상태로 돌아가고 싶은 경우, 
+    실행중인 트렌젝션은 유지된다. 
+    rollback savepoint <이름>; 으로 되돌릴수 있고 커밋으로 확정
+      
