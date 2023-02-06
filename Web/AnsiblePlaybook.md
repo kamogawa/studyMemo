@@ -31,3 +31,7 @@ vagrant init centos/7
 vagrant up
 vagrant ssh
 ```
+
+다른 패키지의 의존 관계 때문에 java8 설정되어 우선이 되어버림
+alternatives로 java8버전을 내리고 --auto java(이름) 으로 최우선 버전이 사용되도록 함
+https://ytyaru.hatenablog.com/entry/2020/05/24/000000
