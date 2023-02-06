@@ -7,10 +7,17 @@ git branch -d <branch>
 ・직전 커밋 취소 
 git reset --soft HEAD^
 
-.리베이스 작업중 브런치에서 실행
+・직전 add를 취소
+git reset HEAD 파일
+
+.리베이스 작업중 브런치에서 실행 / 커밋을 통합
 git checkout master
 git pull
 git checkout <branch>
 git rebase origin/master
 경합 발생시 수정 후 git rebase --continue
-git push origin <branch>-f 
+git push origin <branch> -f 
+
+・일부만 마스터에 반영하고 싶을때
+git revert <commit>
+경합 발생시 수정 후 git revert --continue
