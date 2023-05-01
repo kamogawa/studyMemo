@@ -1,0 +1,18 @@
+### recharts
+리엑트 차트 라이브러리, 심플하고 사용법이 비교적 간단함
+https://recharts.org/en-US/examples
+
+BarChart
+
+Legend: 범례
+  [옵션] verticalAlign: 위치
+
+tooltip: 커서를 올렸을때 나오는 정보(일단은 사용안할 가능성이 높기 때문에 나중에 조사)
+  [옵션] separator: 구분자, filterNull: 널값 표시 유무, offset: 커서와의 거리 등등
+  
+Cell: Bar의 자식 요소로 각 그래프 아이템에 색상과 테두리 설정 가능, 첫번째 아이템 부터 개별 설정을 할수 있다.
+  [옵션] stroke: 표의 테두리, fill: 색상
+  
+LabelList: 데이터의 이름라벨 표시 방법
+  [옵션] positon: 위치, content: 커스텀 함수
+  https://recharts.org/en-US/examples/BarChartWithMinHeight
